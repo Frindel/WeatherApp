@@ -5,8 +5,38 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WeatherApp"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="MainWindow" Height="200" Width="250"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+    <Grid Style="{StaticResource container}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="3*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
 
+        <!-- заголовки -->
+        <StackPanel>
+            <Label>Страна</Label>
+            <Label>Город</Label>
+            <Label>Дата</Label>
+        </StackPanel>
+
+        <!-- поля -->
+        <StackPanel Grid.Column="1" Grid.Row="0">
+            <ComboBox x:Name="countriesList" IsEditable="True" DisplayMemberPath="Name">
+
+            </ComboBox>
+            <ComboBox IsEditable="True"
+                      ItemsSource="{Binding ElementName=countriesList, Path=SelectedValue.Sities}"
+                      DisplayMemberPath="Name">
+            </ComboBox>
+            <DatePicker></DatePicker>
+        </StackPanel>
+
+        <Button Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Center">Найти</Button>
     </Grid>
 </Window>
