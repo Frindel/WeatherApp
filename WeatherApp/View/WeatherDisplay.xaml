@@ -1,0 +1,68 @@
+﻿<Window x:Class="WeatherApp.View.WeatherDisplay"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:WeatherApp.View"
+        xmlns:converters="clr-namespace:WeatherApp.Converters"
+        mc:Ignorable="d"
+        Title="Погода" Height="270" Width="600"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+    <Window.Resources>
+        <converters:TimePeriodConverter x:Key="timePeriodConverter"></converters:TimePeriodConverter>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <StackPanel HorizontalAlignment="Center">
+            <Label HorizontalAlignment="Center" x:Name="dayOfWeek" />
+            <Label HorizontalAlignment="Center" x:Name="date" />
+        </StackPanel>
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Visible"
+                      VerticalScrollBarVisibility="Hidden">
+            <ListBox x:Name="forecast">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel IsItemsHost="True" />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Width="150" Height="150" Margin="5" BorderThickness="1" BorderBrush="#009688">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition MaxWidth="50" Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Label HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Grid.ColumnSpan="2" Background="#009688">
+                                    <Label.Content>
+                                        <WrapPanel Orientation="Horizontal">
+                                            <Label Foreground="#EEE" Content="{Binding DateFrom, Converter={StaticResource timePeriodConverter}}"/>
+                                            <Label Foreground="#EEE">-</Label>
+                                            <Label Foreground="#EEE" Content="{Binding DateTo, Converter={StaticResource timePeriodConverter}}"/>
+                                        </WrapPanel>
+                                    </Label.Content>
+                                </Label>
+                                <StackPanel Grid.Row="1">
+                                    <Label>Температура</Label>
+                                    <Label>Давление</Label>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Grid.Row="1">
+                                    <Label Content="{Binding Temperature}"/>
+                                    <Label Content="{Binding Pressure}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </ScrollViewer>
+    </Grid>
+</Window>

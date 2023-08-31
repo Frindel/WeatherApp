@@ -7,6 +7,8 @@ using WeatherApp.Data.Entities;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Prism.Mvvm;
+using WeatherApp.View;
+using AppContext = WeatherApp.Data.AppContext;
 
 namespace WeatherApp.Model;
 
@@ -88,8 +90,8 @@ public class WeatherStorage : BindableBase
 		// добавление полученного прогноза в БД
 		UpdateDate(forecast);
 
-		// todo: отображение окна с информацией о погоде
-		Application.Current.Dispatcher.Invoke(() => { });
+		// отображение окна с информацией о погоде
+		Application.Current.Dispatcher.Invoke(() => new WeatherDisplay(Date, GetCityId()).Show());
 	}
 
 	#region Protected methods
@@ -117,8 +119,8 @@ public class WeatherStorage : BindableBase
 		HttpClient client = new HttpClient();
 		client.DefaultRequestHeaders.Add("User-Agent", "weatherApp/0.1 github.com/frindel");
 		string json = await client.GetStringAsync(_weatherApiUrl +
-		                                          $"lat={coordinates.X.ToString(System.Globalization.CultureInfo.InvariantCulture)}" +
-		                                          $"&lon={coordinates.Y.ToString(System.Globalization.CultureInfo.InvariantCulture)}");
+		                                          $"lon={coordinates.X.ToString(System.Globalization.CultureInfo.InvariantCulture)}" +
+		                                          $"&lat={coordinates.Y.ToString(System.Globalization.CultureInfo.InvariantCulture)}");
 
 		// извлечение прогноза
 		var forecastJson = JObject.Parse(json)["properties"]["timeseries"];
@@ -179,7 +181,7 @@ public class WeatherStorage : BindableBase
 				Forecast savedForecast = context.Forecast.FirstOrDefault(f => f.CityId == cityId
 				                                                              && f.DateFrom == forecastInfo.DateFrom
 				                                                              && f.DateTo == forecastInfo.DateTo);
-				// проверка наличия записи о прогнозе
+				// проверка наличия записи о прогнозе в БД
 				if (savedForecast != null)
 				{
 					savedForecast.Temperature = forecastInfo.Temperature;
