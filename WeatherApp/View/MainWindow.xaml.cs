@@ -26,12 +26,12 @@ namespace WeatherApp
 		{
 			InitializeComponent();
 
-			LoadSitiesAsync();
+			LoadCitiesAsync();
 
 			DataContext = new MainWindowViewModel();
 		}
 
-		async void LoadSitiesAsync()
+		async void LoadCitiesAsync()
 		{
 			List<Country> countries = new List<Country>();
 

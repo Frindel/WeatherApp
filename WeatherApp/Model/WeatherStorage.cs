@@ -172,6 +172,10 @@ public class WeatherStorage : BindableBase
 
 	protected void UpdateDate(List<Forecast> forecast)
 	{
+		try
+		{
+
+		
 		int cityId = GetCityId();
 
 		using (Data.AppContext context = new Data.AppContext())
@@ -196,6 +200,13 @@ public class WeatherStorage : BindableBase
 			}
 
 			context.SaveChanges();
+		}
+		
+		}
+		catch (Exception e)
+		{
+			Console.WriteLine(e);
+			throw;
 		}
 	}
 
