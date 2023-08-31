@@ -60,9 +60,36 @@ public class WeatherStorage : BindableBase
 
 	public async Task DisplayWeather()
 	{
-		var coordinates = await GetCityCoordinates(CityName);
+		DateOnly currentDate = DateOnly.FromDateTime(DateTime.Now.ToUniversalTime());
+		var a = currentDate.AddDays(10);
+		if (currentDate.AddDays(10) < Date)
+		{
+			MessageBox.Show("Данные на даты свыше 10 следующих дней отсутствуют", "Ошибка", MessageBoxButton.OK,
+				MessageBoxImage.Information);
+			return;
+		}
 
-		var forecast = await GetForecast(coordinates);
+		// проверка на наличие информации о погоде в прошлом
+		if (currentDate > Date)
+		{
+			if (!ForecastIsExists(currentDate))
+			{
+				MessageBox.Show("Данные на прошлую дату отсутствуют", "Ошибка", MessageBoxButton.OK,
+					MessageBoxImage.Information);
+			}
+
+			return;
+		}
+
+		// получение информации о погоде
+		Point coordinates = await GetCityCoordinates(CityName);
+		List<Forecast> forecast = await GetForecast(coordinates);
+
+		// добавление полученного прогноза в БД
+		UpdateDate(forecast);
+
+		// todo: отображение окна с информацией о погоде
+		Application.Current.Dispatcher.Invoke(() => { });
 	}
 
 	#region Protected methods
@@ -129,6 +156,67 @@ public class WeatherStorage : BindableBase
 		}
 
 		return forecast;
+	}
+
+	protected bool ForecastIsExists(DateOnly date)
+	{
+		using (Data.AppContext context = new Data.AppContext())
+		{
+			DateTime utcDate = Date.ToDateTime(TimeOnly.MinValue).ToUniversalTime();
+
+			return context.Forecast.Any(f => f.DateFrom == utcDate);
+		}
+	}
+
+	protected void UpdateDate(List<Forecast> forecast)
+	{
+		int cityId = GetCityId();
+
+		using (Data.AppContext context = new Data.AppContext())
+		{
+			foreach (Forecast forecastInfo in forecast)
+			{
+				Forecast savedForecast = context.Forecast.FirstOrDefault(f => f.CityId == cityId
+				                                                              && f.DateFrom == forecastInfo.DateFrom
+				                                                              && f.DateTo == forecastInfo.DateTo);
+				// проверка наличия записи о прогнозе
+				if (savedForecast != null)
+				{
+					savedForecast.Temperature = forecastInfo.Temperature;
+					savedForecast.Pressure = forecastInfo.Pressure;
+
+					context.Forecast.Update(savedForecast);
+					continue;
+				}
+
+				forecastInfo.CityId = cityId;
+				context.Forecast.Add(forecastInfo);
+			}
+
+			context.SaveChanges();
+		}
+	}
+
+	protected int GetCityId()
+	{
+		using (Data.AppContext context = new Data.AppContext())
+		{
+			City city = context.Cities.FirstOrDefault(c => c.Name == CityName && c.Country == CountryName);
+
+			if (city != null)
+				return city.Id;
+
+			City newCity = new City()
+			{
+				Name = CityName,
+				Country = CountryName
+			};
+
+			context.Cities.Add(newCity);
+			context.SaveChanges();
+
+			return newCity.Id;
+		}
 	}
 
 	#endregion
