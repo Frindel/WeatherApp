@@ -44,8 +44,8 @@ namespace WeatherApp
 			// десериализация данных о городах
 			foreach (var countryJson in countriesJson)
 			{
-				List<Sity> sities = countryJson["cities"].Select(c => new Sity(c.Value<string>())).ToList();
-				Country country = new Country(countryJson["country"].Value<string>(), sities);
+				List<City> cities = countryJson["cities"].Select(c => new City(c.Value<string>())).ToList();
+				Country country = new Country(countryJson["country"].Value<string>(), cities);
 
 				countries.Add(country);
 			}
@@ -57,20 +57,20 @@ namespace WeatherApp
 		{
 			public string Name { get; set; }
 
-			public List<Sity> Sities { get; set; } = new List<Sity>();
+			public List<City> Cities { get; set; }
 
-			public Country(string name, List<Sity> sities)
+			public Country(string name, List<City> cities)
 			{
 				Name = name;
-				Sities = sities;
+				Cities = cities;
 			}
 		}
 
-		private class Sity
+		private class City
 		{
 			public string Name { get; set; }
 
-			public Sity(string name)
+			public City(string name)
 			{
 				Name = name;
 			}
